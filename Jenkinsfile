@@ -12,7 +12,8 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/srushhh86/playwrightTest.git'
+              git branch:'main',
+                url: 'https://github.com/srushhh86/playwrightTest.git'
             }
         }
 
