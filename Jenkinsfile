@@ -31,7 +31,7 @@ pipeline {
 
         stage('Execute Tests') {
             steps {
-                sh 'npx playwright test @smoke'
+                sh 'npx playwright test --grep @smoke'
             }
         }
 
