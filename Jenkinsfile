@@ -6,18 +6,20 @@ pipeline {
         nodejs 'NodeJS18'
     }
 
-
+    environment {
+        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
+    }
 
     stages {
 
         stage('Checkout') {
             steps {
-              git branch:'main',
-                url: 'https://github.com/srushhh86/playwrightTest.git'
+                git branch: 'main',
+                    url: 'https://github.com/srushhh86/playwrightTest.git'
             }
         }
 
-        stage('Install') {
+        stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
             }
@@ -25,20 +27,46 @@ pipeline {
 
         stage('Install Browsers') {
             steps {
-                sh 'npx playwright install --with-deps'
+                sh 'npx playwright install'
             }
         }
 
         stage('Execute Tests') {
             steps {
-                sh 'npx playwright test --grep @smoke'
+                sh 'npx playwright test --grep "@smoke"'
             }
         }
 
-        stage('Publish Report') {
+        stage('Publish HTML Report') {
             steps {
-                archiveArtifacts artifacts: 'playwright-report/**/*'
+
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'playwright-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright Report'
+                ])
+
             }
+        }
+    }
+
+    post {
+
+        always {
+
+            archiveArtifacts artifacts: 'playwright-report/**/*'
+
+        }
+
+        success {
+            echo 'Pipeline Passed'
+        }
+
+        failure {
+            echo 'Pipeline Failed'
         }
     }
 }
